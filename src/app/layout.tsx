@@ -31,7 +31,7 @@ export default function RootLayout({
         <Script
           data-website-id="68c20bc6a188eec6de5f0600"
           data-domain="fake-status.vercel.app"
-          src="https://datafa.st/js/script.js"
+          src="/js/script.js"
           strategy="afterInteractive"
         />
       </head>

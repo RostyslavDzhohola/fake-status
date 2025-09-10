@@ -26,11 +26,12 @@ export default function UploadPhotoButton({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Basic validation: image and <= 10MB
-    const isImage = file.type.startsWith("image/");
+    // Basic validation: specific image types and <= 10MB
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    const isValidImage = allowedTypes.includes(file.type.toLowerCase());
     const isSmallEnough = file.size <= 10 * 1024 * 1024;
-    if (!isImage || !isSmallEnough) {
-      alert("Please select an image up to 10MB.");
+    if (!isValidImage || !isSmallEnough) {
+      alert("Please select a valid image (JPG, PNG, WebP) up to 10MB.");
       e.target.value = "";
       return;
     }

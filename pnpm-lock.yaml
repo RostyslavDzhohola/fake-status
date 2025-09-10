@@ -35,6 +35,9 @@ importers:
       ai:
         specifier: ^5.0.39
         version: 5.0.39(zod@4.1.5)
+      ai-elements:
+        specifier: ^1.1.2
+        version: 1.1.2
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1212,6 +1215,10 @@ packages:
   acorn@8.15.0:
     resolution: {integrity: sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg==}
     engines: {node: '>=0.4.0'}
+    hasBin: true
+
+  ai-elements@1.1.2:
+    resolution: {integrity: sha512-59+WD0EOOepfMeKispoa57ZTpgYdTN0tVmwRaGlWYyf9vnM497XoUAlYgzmvAiefp5znhnJ8kFUwR1oGSLnukA==}
     hasBin: true
 
   ai@5.0.39:
@@ -3464,6 +3471,8 @@ snapshots:
       acorn: 8.15.0
 
   acorn@8.15.0: {}
+
+  ai-elements@1.1.2: {}
 
   ai@5.0.39(zod@4.1.5):
     dependencies:

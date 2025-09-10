@@ -9,7 +9,7 @@
 ## 1 Decisions (10 min)
 
 - [x] Name: `StatusShot`
-- [ ] v1 = **Free download**, **no watermark**, **no login**, **no email required**
+- [x] v1 = **Free download**, **no watermark**, **no login**, **no email required**
 - [ ] Upsell = **Preorder early-supporter subscription credit** (Stripe Checkout Link)
 - [x] Model: **Vercel AI SDK** (server route)
 - [ ] IG outputs: **4:5 (1080×1350)** and **1:1 (1080×1080)**
@@ -21,26 +21,28 @@
 - [x] Next.js (App Router) + TypeScript + Tailwind (Vercel deploy)
 - [x] UI components: shadcn/ui
 - [ ] Uploads: UploadThing
-- [ ] Image gen: Vercel AI SDK wired in `/api/generate`
+- [x] Image gen: Vercel AI SDK wired in `/api/generate`
 - [ ] Payments: single **Stripe Checkout Link** (no backend logic for checkout)
-- [ ] Analytics: **DataFast** snippet + (optional) **Stripe webhook** only for conversion counts
+- [x] Analytics: **DataFast** snippet + (optional) **Stripe webhook** only for conversion counts
 
 ---
 
 ## 3 Landing (single page)
 
-- [ ] H1: “Boat-set shots in minutes. No boat debt.”
-- [ ] Sub: “Upload a selfie → get a photoreal yacht shot. Free download. Preorder a year of Pro as an early supporter.”
-- [ ] Primary CTA: **Make My Boat Shot**
-- [ ] Mini gallery (2–3 samples) — placeholders day 1
-- [ ] Secondary CTA: **Preorder Pro (Founding Year Credit)**
-- [ ] Footer: TOS, Privacy, “For entertainment use only”, content policy
+- [x] H1: “Generate high‑status shots — in minutes.”
+- [x] Sub: “Upload a selfie → get photoreal status‑trigger scenes (v1: Yacht). Playful social‑engineering vibe—signal status in places it usually wouldn’t be allowed. Free download. No watermark. For entertainment only.”
+- [x] Primary actions: **Upload your photo** + **Try without upload**
+- [x] Trust badges (placeholder)
+- [x] Mini gallery (placeholder)
+- [x] Features (placeholder)
+- [x] FAQ (placeholder)
+- [x] Footer: policy note
 
 ---
 
 ## 4 Upload Flow (no auth, no email)
 
-- [ ] Drag-and-drop / picker (jpg/png ≤10MB)
+- [x] Simple picker button (jpg/png ≤10MB)
 - [ ] Guidelines box (above picker): - Face + upper torso visible - Plain background, bright soft light - No hats/sunglasses; camera at eye level
 - [ ] Progress states + simple error messages
 - [ ] “Delete my photo” button (immediate purge)

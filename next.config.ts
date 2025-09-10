@@ -7,6 +7,15 @@ const nextConfig: NextConfig = {
       edgeLimit: 100,
     },
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "g5bkk9ebz3.ufs.sh",
+        pathname: "/f/**",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

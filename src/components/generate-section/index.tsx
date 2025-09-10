@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { yachtPreset } from "@/lib/prompt";
@@ -12,6 +12,14 @@ export default function GenerateSection() {
   const [prompt, setPrompt] = useState<string>(
     `Photoreal portrait on a yacht, ${yachtPreset.guidance}`
   );
+  const [userPhoto, setUserPhoto] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      return sessionStorage.getItem("userUploadDataUrl");
+    } catch {
+      return null;
+    }
+  });
 
   async function handleGenerate() {
     setIsGenerating(true);
@@ -21,7 +29,7 @@ export default function GenerateSection() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ prompt, imageUrl: userPhoto || undefined }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Failed to generate");
@@ -32,6 +40,18 @@ export default function GenerateSection() {
       setIsGenerating(false);
     }
   }
+
+  // Pick up user upload from the UploadPhotoButton via sessionStorage
+  // and update live when the custom event fires. Keeps scope client‑local.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handler = () => {
+      const next = sessionStorage.getItem("userUploadDataUrl");
+      if (next) setUserPhoto(next);
+    };
+    window.addEventListener("user-uploaded-photo", handler);
+    return () => window.removeEventListener("user-uploaded-photo", handler);
+  }, []);
 
   return (
     <section id="make-shot" className="w-full max-w-2xl mx-auto space-y-6">
@@ -52,6 +72,15 @@ export default function GenerateSection() {
           onChange={(e) => setPrompt(e.target.value)}
           rows={3}
         />
+        {userPhoto ? (
+          <p className="text-xs text-muted-foreground">
+            Using your uploaded photo.
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            Optional: upload a selfie above to personalize.
+          </p>
+        )}
       </div>
 
       <div className="flex gap-3">

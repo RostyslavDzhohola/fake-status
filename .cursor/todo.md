@@ -11,7 +11,7 @@
 - [x] Name: `StatusShot`
 - [ ] v1 = **Free download**, **no watermark**, **no login**, **no email required**
 - [ ] Upsell = **Preorder early-supporter subscription credit** (Stripe Checkout Link)
-- [ ] Model: **Vercel AI SDK** (server route)
+- [x] Model: **Vercel AI SDK** (server route)
 - [ ] IG outputs: **4:5 (1080×1350)** and **1:1 (1080×1080)**
 
 ---

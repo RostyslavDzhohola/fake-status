@@ -1,4 +1,5 @@
 import Link from "next/link";
+import GenerateSection from "@/components/generate-section";
 
 export default function Home() {
   return (
@@ -34,6 +35,7 @@ export default function Home() {
           abuse
         </p>
       </footer>
+      <GenerateSection />
     </main>
   );
 }

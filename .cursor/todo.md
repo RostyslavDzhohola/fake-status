@@ -8,7 +8,7 @@
 
 ## 1 Decisions (10 min)
 
-- [ ] Name: `StatusShot`
+- [x] Name: `StatusShot`
 - [ ] v1 = **Free download**, **no watermark**, **no login**, **no email required**
 - [ ] Upsell = **Preorder early-supporter subscription credit** (Stripe Checkout Link)
 - [ ] Model: **Vercel AI SDK** (server route)
@@ -18,9 +18,9 @@
 
 ## 2 Repo & Stack
 
-- [ ] Next.js (App Router) + TypeScript + Tailwind (Vercel deploy)
-- [ ] UI components: shadcn/ui
-- [ ] Uploads: UploadThing (or Supabase S3)
+- [x] Next.js (App Router) + TypeScript + Tailwind (Vercel deploy)
+- [x] UI components: shadcn/ui
+- [ ] Uploads: UploadThing
 - [ ] Image gen: Vercel AI SDK wired in `/api/generate`
 - [ ] Payments: single **Stripe Checkout Link** (no backend logic for checkout)
 - [ ] Analytics: **DataFast** snippet + (optional) **Stripe webhook** only for conversion counts
@@ -29,9 +29,9 @@
 
 ## 3 Landing (single page)
 
-- [ ] H1: “Jet-set shots in minutes. No jet debt.”
+- [ ] H1: “Boat-set shots in minutes. No boat debt.”
 - [ ] Sub: “Upload a selfie → get a photoreal yacht shot. Free download. Preorder a year of Pro as an early supporter.”
-- [ ] Primary CTA: **Make My Yacht Shot**
+- [ ] Primary CTA: **Make My Boat Shot**
 - [ ] Mini gallery (2–3 samples) — placeholders day 1
 - [ ] Secondary CTA: **Preorder Pro (Founding Year Credit)**
 - [ ] Footer: TOS, Privacy, “For entertainment use only”, content policy

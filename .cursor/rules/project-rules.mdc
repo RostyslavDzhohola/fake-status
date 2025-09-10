@@ -1,0 +1,63 @@
+---
+description: StatusShot project rules
+globs:
+alwaysApply: true
+---
+
+## Stack & Scope
+
+- Next.js App Router + TypeScript + Tailwind v4.
+- UI: Shadcn UI + Radix + Tailwind utilities.
+- Server-first: prefer RSC; keep `use client` minimal and local.
+- v1 is free, no watermark, no login, no email.
+- Image gen via Vercel AI SDK behind `app/api/generate`.
+- Payments: single Stripe Checkout Link (no backend checkout logic).
+- Analytics: DataFast snippet + optional Stripe webhook counter.
+
+## Code Style & Structure
+
+- Functional, declarative React; avoid classes.
+- Use TypeScript interfaces; avoid enums (prefer maps).
+- Descriptive names with auxiliaries (e.g., `isLoading`, `hasError`).
+- File layout: exported component, subcomponents, helpers, static content, types.
+- Directories: lowercase-dash (e.g., `components/upload-card`).
+- Favor named exports for components.
+
+## Rendering & Performance
+
+- Minimize `use client`, `useEffect`, and state; prefer RSC and SSR.
+- Wrap client components in `Suspense` with fallbacks.
+- Dynamic import non-critical UI.
+- Optimize images (WebP if possible, size hints, lazy loading).
+- Optimize Web Vitals (LCP, CLS, FID).
+
+## Conventions
+
+- URL state: use `nuqs` when needed.
+- Follow Next docs for data fetching, rendering, and routing.
+- Tailwind: utility-first, responsive, mobile-first.
+- Keep files under ~200–300 LOC; refactor if larger.
+- No mock/stub data outside tests; never ship fake data to dev/prod.
+
+## Product Rules (from MVP TODO)
+
+- Landing copy:
+  - H1: “Jet-set shots in minutes. No jet debt.”
+  - Sub: “Upload a selfie → get a photoreal yacht shot. Free download. Preorder a year of Pro as an early supporter.”
+- One scene only: Yacht. Store one HQ background.
+- Prompt preset lives in `src/lib/prompt.ts`.
+- Generate route returns composite; client shows result + Download.
+- Outputs: 4:5 (1080×1350) and 1:1 (1080×1080); buttons for each and All (ZIP).
+- Share: Web Share API on mobile; X/IG helpers; proper OG/Twitter meta.
+- Preorder button opens Stripe Checkout Link; copy explains founding credit.
+- Delivery: on-page result, direct download, “Delete files now” (immediate purge), auto-delete in 48h.
+
+## Safety & Policy
+
+- Block: minors, porn, impersonation, political/celebrity deepfakes.
+- Display “For entertainment/creative use only”.
+- Provide report/abuse link.
+
+## Non-goals (later; do not implement now)
+
+- 9:16 exports, referral credit, multi-scene picker, accounts/saved gallery.

@@ -9,9 +9,7 @@ export default function GenerateSection() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dataUrl, setDataUrl] = useState<string | null>(null);
-  const [prompt, setPrompt] = useState<string>(
-    `Photoreal portrait on a yacht, ${yachtPreset.guidance}`
-  );
+  const [prompt, setPrompt] = useState<string>("");
   const [userPhoto, setUserPhoto] = useState<string | null>(null);
 
   async function handleGenerate() {
@@ -62,10 +60,13 @@ export default function GenerateSection() {
       </div>
 
       <div className="grid gap-3">
-        <label className="text-sm font-medium">Style prompt</label>
+        <label className="text-sm font-medium">
+          make changes to the yacht shot
+        </label>
         <Textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
+          placeholder={yachtPreset.placeHolder}
           rows={3}
         />
         {userPhoto ? (

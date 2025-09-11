@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { generateText } from "ai";
+import { buildComposedPrompt } from "@/lib/prompt";
 
 export const runtime = "nodejs";
 
@@ -22,39 +23,26 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // Prompt must come from the request
+    // Prompt is optional; we combine base guidance with user's prompt
     const promptFromUserRaw =
       typeof body?.prompt === "string" ? body.prompt : "";
     const promptFromUser = promptFromUserRaw.trim();
-    if (!promptFromUser) {
-      return NextResponse.json(
-        { error: "Prompt is required" },
-        { status: 400 }
-      );
-    }
 
-    // Always include placeholder background; include user image if provided
+    // Always include the yacht scene base image; send image bytes, not just URL
     const placeholderImageUrl =
       "https://g5bkk9ebz3.ufs.sh/f/PZXJIaSDIN6EGuuBpPPeJVcWxw42m0dKa3ghMb8Gr6HANYeo";
     const userImageUrl =
       typeof body?.imageUrl === "string" ? body.imageUrl.trim() : "";
 
-    // Compose a single prompt string referencing the assets
-    const composedPrompt = [
-      promptFromUser,
-      "\n\nBackground image URL:",
-      placeholderImageUrl,
-      userImageUrl
-        ? "\nUser photo (data URL or URL): " + userImageUrl
-        : "\nNo user photo provided.",
-      "\nReturn a photoreal composite image.",
-    ].join("");
+    // Build composed prompt based on mode: edit (no user image) vs composite (with user image)
+    const hasUserImage = Boolean(userImageUrl);
+    const composedPrompt = buildComposedPrompt(promptFromUser, hasUserImage);
 
     // Log outbound request (without secrets)
     console.log("/api/generate → provider request", {
       requestId,
       modelEnv: process.env.IMAGE_MODEL,
-      hasUserImage: Boolean(userImageUrl),
+      hasUserImage,
       placeholderImageUrl,
       promptPreview: composedPrompt.slice(0, 1000),
       promptLength: composedPrompt.length,
@@ -64,13 +52,53 @@ export async function POST(req: NextRequest) {
       (process.env.IMAGE_MODEL && process.env.IMAGE_MODEL.trim()) ||
       "google/gemini-2.5-flash-image-preview";
 
+    // Prepare image parts
+    const baseImage = await loadImageFromUnknownSource(placeholderImageUrl);
+    const userImage = await (async () => {
+      if (!userImageUrl) return undefined;
+      if (userImageUrl.startsWith("data:")) {
+        return parseDataUrl(userImageUrl);
+      }
+      if (
+        userImageUrl.startsWith("http://") ||
+        userImageUrl.startsWith("https://")
+      ) {
+        return loadImageFromUnknownSource(userImageUrl);
+      }
+      return undefined;
+    })();
+
     const result = await generateText({
       model,
-      prompt: composedPrompt,
       providerOptions: {
         // Ask Gemini to return an IMAGE file in the response
         google: { responseModalities: ["IMAGE"] },
       },
+      messages: [
+        {
+          role: "user",
+          content: [
+            // Base yacht scene
+            {
+              type: "image" as const,
+              image: baseImage.data,
+              mediaType: baseImage.mediaType,
+            },
+            // Optional user photo
+            ...(userImage
+              ? ([
+                  {
+                    type: "image" as const,
+                    image: userImage.data,
+                    mediaType: userImage.mediaType,
+                  },
+                ] as const)
+              : []),
+            // Instructional prompt
+            { type: "text" as const, text: composedPrompt },
+          ],
+        },
+      ],
     });
 
     // Prefer image files returned by Gemini over textual output
@@ -240,4 +268,54 @@ function serializeError(err: unknown): Record<string, unknown> {
   }
 
   return result;
+}
+
+// Parses a data URL (e.g. data:image/png;base64,AAA...) into bytes and media type
+function parseDataUrl(dataUrl: string): {
+  data: Uint8Array;
+  mediaType: string;
+} {
+  if (!dataUrl.startsWith("data:")) {
+    throw Object.assign(new Error("Invalid data URL"), { status: 400 });
+  }
+  const commaIndex = dataUrl.indexOf(",");
+  if (commaIndex === -1) {
+    throw Object.assign(new Error("Malformed data URL"), { status: 400 });
+  }
+  const header = dataUrl.slice(5, commaIndex); // after 'data:'
+  const body = dataUrl.slice(commaIndex + 1);
+  const semiIndex = header.indexOf(";");
+  const mediaType =
+    (semiIndex === -1 ? header : header.slice(0, semiIndex)) ||
+    "application/octet-stream";
+  const isBase64 = header.includes(";base64");
+  const bytes = isBase64
+    ? new Uint8Array(Buffer.from(body, "base64"))
+    : new TextEncoder().encode(decodeURIComponent(body));
+  return { data: bytes, mediaType };
+}
+
+// Fetches an image by URL and returns bytes and media type
+async function loadImageFromUnknownSource(
+  url: string
+): Promise<{ data: Uint8Array; mediaType: string }> {
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) {
+    const e = new Error(`Failed to fetch image: ${res.status}`);
+    throw Object.assign(e, { status: 400 });
+  }
+  const mediaTypeHeader = res.headers.get("content-type") || "";
+  const mediaType =
+    mediaTypeHeader.split(";")[0] || guessMediaTypeFromUrl(url) || "image/png";
+  const ab = await res.arrayBuffer();
+  return { data: new Uint8Array(ab), mediaType };
+}
+
+function guessMediaTypeFromUrl(url: string): string | undefined {
+  const lower = url.toLowerCase();
+  if (lower.endsWith(".png")) return "image/png";
+  if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
+  if (lower.endsWith(".webp")) return "image/webp";
+  if (lower.endsWith(".gif")) return "image/gif";
+  return undefined;
 }

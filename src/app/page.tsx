@@ -3,6 +3,7 @@ import GenerateSection from "@/components/generate-section";
 import UploadPhotoButton from "@/components/upload-photo-button";
 import Image from "next/image";
 import UploadPreview from "@/components/upload-preview";
+import UploadStatusText from "@/components/upload-status-text";
 
 export default function Home() {
   return (
@@ -18,9 +19,8 @@ export default function Home() {
           </h1>
           <p className="text-pretty text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
             Upload a selfie → get photoreal “status‑trigger” scenes (v1: Yacht).
-            Playful social‑engineering vibe—signal status in places it usually
-            wouldn’t be allowed. Free download. No watermark. For entertainment
-            only.
+            <br />
+            Social engineering 101.
           </p>
         </div>
 
@@ -51,9 +51,12 @@ export default function Home() {
         aria-label="Sample gallery (coming soon)"
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div className="aspect-[4/3] rounded-xl border bg-gradient-to-b from-neutral-50 to-white flex items-center justify-center overflow-hidden">
+          <div className="aspect-[4/3] rounded-xl border bg-gradient-to-b from-neutral-50 to-white flex items-center justify-center overflow-hidden relative">
             {/* Not clickable, just viewable */}
             <span className="sr-only">Sample yacht scene image from</span>
+            <div className="absolute top-2 left-2 z-10 rounded-md bg-black/70 text-white text-xs font-medium px-2 py-1 pointer-events-none">
+              After
+            </div>
             <Image
               src="https://g5bkk9ebz3.ufs.sh/f/PZXJIaSDIN6EGuuBpPPeJVcWxw42m0dKa3ghMb8Gr6HANYeo"
               alt="Sample yacht scene"
@@ -64,8 +67,11 @@ export default function Home() {
             />
           </div>
 
-          <div className="aspect-[4/3] rounded-xl border bg-gradient-to-b from-neutral-50 to-white flex items-center justify-center overflow-hidden">
+          <div className="aspect-[4/3] rounded-xl border bg-gradient-to-b from-neutral-50 to-white flex items-center justify-center overflow-hidden relative">
             <span className="sr-only">Your uploaded photo preview</span>
+            <div className="absolute top-2 left-2 z-10 rounded-md bg-black/70 text-white text-xs font-medium px-2 py-1 pointer-events-none">
+              <UploadStatusText />
+            </div>
             <UploadPreview />
           </div>
         </div>
@@ -87,9 +93,7 @@ export default function Home() {
         </div>
         <div className="rounded-lg border p-4 text-left">
           <h3 className="font-medium">IG‑ready sizes</h3>
-          <p className="text-sm text-muted-foreground">
-            4:5 and 1:1 outputs coming right after base composite.
-          </p>
+          <p className="text-sm text-muted-foreground">4:5 standard </p>
         </div>
         <div className="rounded-lg border p-4 text-left">
           <h3 className="font-medium">Free download</h3>
@@ -107,8 +111,8 @@ export default function Home() {
         <details className="rounded-lg border p-4">
           <summary className="font-medium">Is my photo stored?</summary>
           <p className="mt-2 text-sm text-muted-foreground">
-            We generate on demand and plan auto‑delete within 48h. Manual delete
-            will be available.
+            The photos are not stored on the servers or database. They are
+            stored locally.
           </p>
         </details>
         <details className="rounded-lg border p-4">

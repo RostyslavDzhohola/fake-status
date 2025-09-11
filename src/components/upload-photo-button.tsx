@@ -15,6 +15,68 @@ type Heic2Any = (options: {
 }) => Promise<Blob>;
 
 /**
+ * Downscale an image Blob on the client using a canvas.
+ * - Reads the Blob as a data URL
+ * - Draws it to a canvas with scale = Math.min(1, maxDimension / max(width, height))
+ * - Returns a new Blob via canvas.toBlob with the requested mimeType and quality
+ * - Skips canvas processing entirely if scale === 1 to avoid unnecessary work
+ */
+async function downscaleImageViaCanvas(
+  inputBlob: Blob,
+  options: { maxDimension: number; mimeType: string; quality?: number }
+): Promise<Blob> {
+  const dataUrl = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("Failed to read image blob"));
+    reader.onload = () => resolve(String(reader.result));
+    reader.readAsDataURL(inputBlob);
+  });
+
+  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("Failed to load image for canvas"));
+    image.src = dataUrl;
+  });
+
+  const width = img.naturalWidth || img.width;
+  const height = img.naturalHeight || img.height;
+  if (!width || !height) return inputBlob;
+
+  const maxSide = Math.max(width, height);
+  const scale = Math.min(1, options.maxDimension / maxSide);
+
+  if (scale === 1) return inputBlob;
+
+  const targetW = Math.max(1, Math.round(width * scale));
+  const targetH = Math.max(1, Math.round(height * scale));
+
+  const canvas = document.createElement("canvas");
+  canvas.width = targetW;
+  canvas.height = targetH;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return inputBlob;
+  ctx.drawImage(img, 0, 0, targetW, targetH);
+
+  const mimeType = options.mimeType || "image/jpeg";
+  const quality =
+    typeof options.quality === "number" ? options.quality : undefined;
+
+  const outBlob = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      (b) => {
+        if (b) resolve(b);
+        else reject(new Error("Canvas toBlob failed"));
+      },
+      mimeType,
+      quality
+    );
+  });
+
+  return outBlob;
+}
+
+/**
  * Minimal client upload button. Stores the selected image as a data URL in
  * sessionStorage under the key `userUploadDataUrl` so other client widgets
  * (e.g. the generator) can read it without global state.
@@ -97,10 +159,18 @@ export default function UploadPhotoButton({
         });
       }
 
-      // Enforce the 10MB limit after conversion as well
+      // Downscale large images client-side to avoid sessionStorage overflow and memory spikes
+      const targetMimeType = isHeic ? "image/jpeg" : file.type;
+      blobToStore = await downscaleImageViaCanvas(blobToStore, {
+        maxDimension: 2048,
+        mimeType: targetMimeType,
+        quality: 0.85,
+      });
+
+      // Enforce the 10MB limit after potential downscale
       if (blobToStore.size > 10 * 1024 * 1024) {
         alert(
-          "Converted image exceeds 10MB. Please choose a smaller photo or crop it."
+          "Processed image exceeds 10MB. Please choose a smaller photo or crop it."
         );
         return;
       }

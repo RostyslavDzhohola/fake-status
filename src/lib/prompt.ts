@@ -1,12 +1,11 @@
 export interface PromptPreset {
   scene: "yacht";
-  placeHolder: string;
+  text: string;
 }
 
 export const yachtPreset: PromptPreset = {
   scene: "yacht",
-  placeHolder:
-    "Insert a person from the image into the yacht scene in the center",
+  text: "Insert a dog in the middle seat of the yacht",
 };
 
 // Returns the composed prompt using the base yacht guidance and the user's prompt.
@@ -26,7 +25,13 @@ export function buildComposedPrompt(
   const base = hasUserImage ? compositeBase : editBase;
 
   // Compose a concise, single-string instruction for the model
-  return [base, `Extra instructions: ${yachtPreset.placeHolder}`, user]
+  return [
+    base,
+    // Only include preset guidance when there's no user image. If user supplies
+    // an image, avoid biasing the model with the preset text.
+    hasUserImage ? "" : `Extra instructions: ${yachtPreset.text}`,
+    user,
+  ]
     .filter(Boolean)
     .join(" — ");
 }

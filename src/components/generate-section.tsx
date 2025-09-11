@@ -24,7 +24,19 @@ export default function GenerateSection() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Failed to generate");
-      if (json.dataUrl) setDataUrl(json.dataUrl);
+      if (json.dataUrl) {
+        setDataUrl(json.dataUrl);
+        // Fire one-time event in this session to trigger marketing toast
+        try {
+          if (
+            typeof window !== "undefined" &&
+            sessionStorage.getItem("firstImageGenerated") !== "1"
+          ) {
+            sessionStorage.setItem("firstImageGenerated", "1");
+            window.dispatchEvent(new Event("first-image-generated"));
+          }
+        } catch {}
+      }
     } catch (e: unknown) {
       setError((e as Error).message);
     } finally {
@@ -66,7 +78,7 @@ export default function GenerateSection() {
         <Textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          placeholder={yachtPreset.placeHolder}
+          placeholder={yachtPreset.text}
           rows={3}
         />
         {userPhoto ? (
@@ -80,7 +92,7 @@ export default function GenerateSection() {
         )}
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex gap-3 justify-center">
         <Button onClick={handleGenerate} disabled={isGenerating}>
           {isGenerating ? "Generating..." : "Generate"}
         </Button>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import GenerateSection from "@/components/generate-section";
 import UploadPhotoButton from "@/components/upload-photo-button";
 import Image from "next/image";
@@ -58,12 +59,12 @@ export default function Home() {
               After
             </div>
             <Image
-              src="https://g5bkk9ebz3.ufs.sh/f/PZXJIaSDIN6EGuuBpPPeJVcWxw42m0dKa3ghMb8Gr6HANYeo"
+              src="https://g5bkk9ebz3.ufs.sh/f/PZXJIaSDIN6EPhRGUjSDIN6ExZdGYbs0V7voFuzWTlAL3Qia"
               alt="Sample yacht scene"
               className="object-cover w-full h-full"
               width={400}
               height={300}
-              priority={false}
+              priority={true}
             />
           </div>
 
@@ -121,6 +122,36 @@ export default function Home() {
             Best results: face + upper torso, plain background, soft light.
           </p>
         </details>
+      </section>
+
+      {/* HIRING/BUILD CTA */}
+      <section className="w-full max-w-4xl mx-auto" aria-label="Build with us">
+        <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-black to-neutral-800 text-white p-6 sm:p-8 shadow-md">
+          <div className="space-y-3">
+            <h3 className="text-2xl sm:text-3xl font-semibold tracking-tight">
+              We can build your website or AI idea
+            </h3>
+            <p className="text-sm sm:text-base text-white/80">
+              The first 5 clients are free for our case study. Serious inquiries
+              only.
+            </p>
+          </div>
+          <div className="mt-5">
+            <Button
+              asChild
+              size="lg"
+              className="h-12 px-6 text-base bg-white text-black hover:bg-neutral-100 border shadow-sm"
+            >
+              <Link
+                href="https://tally.so/r/wbpeX1"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Apply now
+              </Link>
+            </Button>
+          </div>
+        </div>
       </section>
 
       {/* FOOTER */}

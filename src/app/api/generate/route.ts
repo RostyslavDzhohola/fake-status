@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
 
     // Always include the yacht scene base image; send image bytes, not just URL
     const placeholderImageUrl =
-      "https://g5bkk9ebz3.ufs.sh/f/PZXJIaSDIN6EGuuBpPPeJVcWxw42m0dKa3ghMb8Gr6HANYeo";
+      "https://g5bkk9ebz3.ufs.sh/f/PZXJIaSDIN6EPhRGUjSDIN6ExZdGYbs0V7voFuzWTlAL3Qia";
     const userImageUrl =
       typeof body?.imageUrl === "string" ? body.imageUrl.trim() : "";
 

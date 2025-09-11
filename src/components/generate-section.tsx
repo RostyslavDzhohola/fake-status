@@ -12,14 +12,7 @@ export default function GenerateSection() {
   const [prompt, setPrompt] = useState<string>(
     `Photoreal portrait on a yacht, ${yachtPreset.guidance}`
   );
-  const [userPhoto, setUserPhoto] = useState<string | null>(() => {
-    if (typeof window === "undefined") return null;
-    try {
-      return sessionStorage.getItem("userUploadDataUrl");
-    } catch {
-      return null;
-    }
-  });
+  const [userPhoto, setUserPhoto] = useState<string | null>(null);
 
   async function handleGenerate() {
     setIsGenerating(true);
@@ -45,20 +38,23 @@ export default function GenerateSection() {
   // and update live when the custom event fires. Keeps scope client‑local.
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const handler = () => {
-      const next = sessionStorage.getItem("userUploadDataUrl");
-      if (next) setUserPhoto(next);
+    const readFromSession = () => {
+      try {
+        const next = sessionStorage.getItem("userUploadDataUrl");
+        setUserPhoto(next || null);
+      } catch {
+        // ignore
+      }
     };
-    window.addEventListener("user-uploaded-photo", handler);
-    return () => window.removeEventListener("user-uploaded-photo", handler);
+    readFromSession();
+    window.addEventListener("user-uploaded-photo", readFromSession);
+    return () =>
+      window.removeEventListener("user-uploaded-photo", readFromSession);
   }, []);
 
   return (
     <section id="make-shot" className="w-full max-w-2xl mx-auto space-y-6">
       <div className="text-left space-y-2">
-        <h2 className="text-2xl sm:text-3xl font-semibold">
-          Make My Yacht Shot
-        </h2>
         <p className="text-sm text-muted-foreground">
           Tip: Face + upper torso visible, plain background, soft light, no
           hats/sunglasses.

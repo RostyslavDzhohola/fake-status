@@ -10,6 +10,9 @@ interface GenerateBody {
 }
 
 export async function POST(req: NextRequest) {
+  const requestId = `${Date.now().toString(36)}-${Math.random()
+    .toString(36)
+    .slice(2, 8)}`;
   // Parse request JSON defensively to distinguish 400 vs provider errors
   let body: GenerateBody | null = null;
   try {
@@ -19,9 +22,43 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const prompt =
-      body?.prompt?.trim() ||
-      "Photoreal portrait on a yacht at golden hour, shallow DOF, teak deck, chrome rail, turquoise water bokeh";
+    // Prompt must come from the request
+    const promptFromUserRaw =
+      typeof body?.prompt === "string" ? body.prompt : "";
+    const promptFromUser = promptFromUserRaw.trim();
+    if (!promptFromUser) {
+      return NextResponse.json(
+        { error: "Prompt is required" },
+        { status: 400 }
+      );
+    }
+
+    // Always include placeholder background; include user image if provided
+    const placeholderImageUrl =
+      "https://g5bkk9ebz3.ufs.sh/f/PZXJIaSDIN6EGuuBpPPeJVcWxw42m0dKa3ghMb8Gr6HANYeo";
+    const userImageUrl =
+      typeof body?.imageUrl === "string" ? body.imageUrl.trim() : "";
+
+    // Compose a single prompt string referencing the assets
+    const composedPrompt = [
+      promptFromUser,
+      "\n\nBackground image URL:",
+      placeholderImageUrl,
+      userImageUrl
+        ? "\nUser photo (data URL or URL): " + userImageUrl
+        : "\nNo user photo provided.",
+      "\nReturn a photoreal composite image.",
+    ].join("");
+
+    // Log outbound request (without secrets)
+    console.log("/api/generate → provider request", {
+      requestId,
+      modelEnv: process.env.IMAGE_MODEL,
+      hasUserImage: Boolean(userImageUrl),
+      placeholderImageUrl,
+      promptPreview: composedPrompt.slice(0, 1000),
+      promptLength: composedPrompt.length,
+    });
 
     const model =
       (process.env.IMAGE_MODEL && process.env.IMAGE_MODEL.trim()) ||
@@ -29,7 +66,7 @@ export async function POST(req: NextRequest) {
 
     const result = await generateText({
       model,
-      prompt,
+      prompt: composedPrompt,
       providerOptions: {
         // Ask Gemini to return an IMAGE file in the response
         google: { responseModalities: ["IMAGE"] },
@@ -90,6 +127,26 @@ export async function POST(req: NextRequest) {
         )}`;
       }
     }
+
+    // Log inbound response summary
+    console.log("/api/generate ← provider response", {
+      requestId,
+      filesCount: Array.isArray(result.files) ? result.files.length : 0,
+      filesSummary: Array.isArray(result.files)
+        ? result.files.map((f) => ({
+            mediaType: (f as { mediaType?: unknown }).mediaType,
+            hasBase64: Boolean((f as unknown as { base64?: string }).base64),
+            hasUint8: Boolean(
+              (f as unknown as { uint8Array?: Uint8Array }).uint8Array
+            ),
+          }))
+        : undefined,
+      textPresent:
+        typeof (result as unknown as { text?: unknown }).text !== "undefined",
+      dataUrlPresent: Boolean(dataUrl),
+      dataUrlPrefix: dataUrl ? dataUrl.slice(0, 32) : undefined,
+      dataUrlLength: dataUrl ? dataUrl.length : 0,
+    });
 
     return NextResponse.json({ ok: true, dataUrl });
   } catch (err: unknown) {

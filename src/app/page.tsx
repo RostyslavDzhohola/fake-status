@@ -2,6 +2,7 @@ import Link from "next/link";
 import GenerateSection from "@/components/generate-section";
 import UploadPhotoButton from "@/components/upload-photo-button";
 import Image from "next/image";
+import UploadPreview from "@/components/upload-preview";
 
 export default function Home() {
   return (
@@ -63,7 +64,10 @@ export default function Home() {
             />
           </div>
 
-          <div className="aspect-[4/3] rounded-xl border bg-gradient-to-b from-neutral-50 to-white" />
+          <div className="aspect-[4/3] rounded-xl border bg-gradient-to-b from-neutral-50 to-white flex items-center justify-center overflow-hidden">
+            <span className="sr-only">Your uploaded photo preview</span>
+            <UploadPreview />
+          </div>
         </div>
       </section>
 
